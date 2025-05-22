@@ -21,10 +21,17 @@ public class ClientService implements IClientService {
         this.clientMapper = clientMapper;
     }
 
+    @Override
     public List<ClientDto> getClients(int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Client> clients = clientRepository.findAll(pageable);
         return clients.stream().map(clientMapper::toDto).toList();
+    }
+
+    @Override
+    public ClientDto create(ClientDto clientDto) {
+        Client client = clientMapper.toEntity(clientDto);
+        return clientMapper.toDto(clientRepository.save(client));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.mydom.hotelapi.dto;
 
 import java.math.BigDecimal;
+import java.security.Provider.Service;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Builder;
@@ -16,5 +17,5 @@ public class BookingDetailsDto {
     private String status;
     private List<ClientDto> clients;
     private List<EmployeeDto> employees;
-    private List<ServiceDto> services;
+    private List<ServiceOrderDto> services;
 }

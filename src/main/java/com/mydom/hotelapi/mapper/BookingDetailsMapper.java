@@ -9,14 +9,14 @@ public class BookingDetailsMapper {
     private final RoomMapper roomMapper;
     private final ClientMapper clientMapper;
     private final EmployeeMapper employeeMapper;
-    private final ServiceMapper serviceMapper;
+    private final ServiceOrderMapper serviceOrderMapper;
 
     public BookingDetailsMapper(RoomMapper roomMapper, ClientMapper clientMapper,
-            EmployeeMapper employeeMapper, ServiceMapper serviceMapper) {
+            EmployeeMapper employeeMapper, ServiceOrderMapper serviceOrderMapper) {
         this.roomMapper = roomMapper;
         this.clientMapper = clientMapper;
         this.employeeMapper = employeeMapper;
-        this.serviceMapper = serviceMapper;
+        this.serviceOrderMapper = serviceOrderMapper;
     }
 
     public BookingDetailsDto toDto(Booking booking) {
@@ -25,7 +25,8 @@ public class BookingDetailsMapper {
                 .totalPrice(booking.getTotalPrice()).status(booking.getStatus())
                 .clients(booking.getClients().stream().map(clientMapper::toDto).toList())
                 .employees(booking.getEmployees().stream().map(employeeMapper::toDto).toList())
-                .services(booking.getServices().stream().map(serviceMapper::toDto).toList())
+                .services(
+                        booking.getServiceOrders().stream().map(serviceOrderMapper::toDto).toList())
                 .build();
     }
 }

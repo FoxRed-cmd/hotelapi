@@ -1,5 +1,7 @@
 package com.mydom.hotelapi.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -27,7 +29,7 @@ public class ClientDto {
     private String passportNumber;
 
     @NotBlank(message = "Date of birth is required")
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
 
-    private String createdAt;
+    private LocalDateTime createdAt;
 }

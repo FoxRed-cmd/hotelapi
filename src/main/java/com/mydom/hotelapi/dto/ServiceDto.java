@@ -9,6 +9,10 @@ import lombok.Data;
 
 @Data
 public class ServiceDto {
+    @NotBlank(message = "Service ID is required")
+    @Positive(message = "Service ID must be positive")
+    private int id;
+
     @NotBlank(message = "Service name is required")
     @Size(max = 100, message = "Service name must be less than 100 characters")
     private String serviceName;
