@@ -9,10 +9,10 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Client {
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "client_id")
+    @Column(name = "employee_id")
     private long id;
 
     @Column(name = "first_name")
@@ -21,19 +21,15 @@ public class Client {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "position")
+    private String position;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "email")
     private String email;
 
-    @Column(name = "passport_number")
-    private String passportNumber;
-
-    @Column(name = "date_of_birth")
-    private String dateOfBirth;
-
-    @Column(name = "created_at")
-    private String createdAt;
-
+    @Column(name = "hire_date")
+    private String hireDate;
 }
