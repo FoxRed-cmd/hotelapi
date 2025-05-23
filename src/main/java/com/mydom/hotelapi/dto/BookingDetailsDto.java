@@ -10,6 +10,7 @@ import lombok.Data;
 @Data
 @Builder
 public class BookingDetailsDto {
+    private Long id;
     private RoomDto room;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;

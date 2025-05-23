@@ -3,11 +3,14 @@ package com.mydom.hotelapi.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class ClientDto {
+
+    private long id;
 
     @NotBlank(message = "First name is required")
     @Size(max = 50, message = "First name must be less than 50 characters")
@@ -28,7 +31,7 @@ public class ClientDto {
     @Size(max = 20, message = "Passport number must be less than 20 characters")
     private String passportNumber;
 
-    @NotBlank(message = "Date of birth is required")
+    @NotNull(message = "Date of birth is required")
     private LocalDate dateOfBirth;
 
     private LocalDateTime createdAt;

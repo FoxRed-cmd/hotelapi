@@ -7,5 +7,9 @@ import com.mydom.hotelapi.dto.BookingDetailsDto;
 public interface IBookingService {
     List<BookingDetailsDto> getAll();
 
+    BookingDetailsDto getActiveByRoomId(String roomNumber);
+
     BookingDetailsDto create(BookingCreateDto bookingCreateDto);
+
+    BookingDetailsDto cancelByRoomNumber(String roomNumber, String status);
 }

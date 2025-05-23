@@ -20,9 +20,10 @@ public class BookingDetailsMapper {
     }
 
     public BookingDetailsDto toDto(Booking booking) {
-        return BookingDetailsDto.builder().room(roomMapper.toDto(booking.getRoom()))
-                .checkInDate(booking.getCheckInDate()).checkOutDate(booking.getCheckOutDate())
-                .totalPrice(booking.getTotalPrice()).status(booking.getStatus())
+        return BookingDetailsDto.builder().id(booking.getId())
+                .room(roomMapper.toDto(booking.getRoom())).checkInDate(booking.getCheckInDate())
+                .checkOutDate(booking.getCheckOutDate()).totalPrice(booking.getTotalPrice())
+                .status(booking.getStatus())
                 .clients(booking.getClients().stream().map(clientMapper::toDto).toList())
                 .employees(booking.getEmployees().stream().map(employeeMapper::toDto).toList())
                 .services(

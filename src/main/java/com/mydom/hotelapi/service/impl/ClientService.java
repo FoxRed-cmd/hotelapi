@@ -4,8 +4,11 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.mydom.hotelapi.dto.ClientDto;
+import com.mydom.hotelapi.exception.ApiException;
 import com.mydom.hotelapi.mapper.ClientMapper;
 import com.mydom.hotelapi.model.Client;
 import com.mydom.hotelapi.repository.ClientRepository;
@@ -31,6 +34,17 @@ public class ClientService implements IClientService {
     @Override
     public ClientDto create(ClientDto clientDto) {
         Client client = clientMapper.toEntity(clientDto);
+        return clientMapper.toDto(clientRepository.save(client));
+    }
+
+    @Override
+    @Transactional
+    public ClientDto update(ClientDto clientDto) {
+        Client client = clientRepository.findById(clientDto.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "Client not found"));
+        Long id = client.getId();
+        client = clientMapper.toEntity(clientDto);
+        client.setId(id);
         return clientMapper.toDto(clientRepository.save(client));
     }
 

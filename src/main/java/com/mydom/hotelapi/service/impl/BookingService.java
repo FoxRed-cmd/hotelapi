@@ -29,65 +29,97 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class BookingService implements IBookingService {
-    private final BookingRepository bookingRepository;
-    private final BookingDetailsMapper bookingDetailsMapper;
-    private final EmployeeRepository employeeRepository;
-    private final ClientRepository clientRepository;
-    private final RoomRepository roomRepository;
-    private final ServiceRepository serviceRepository;
-    private final ClientMapper clientMapper;
+        private final BookingRepository bookingRepository;
+        private final BookingDetailsMapper bookingDetailsMapper;
+        private final EmployeeRepository employeeRepository;
+        private final ClientRepository clientRepository;
+        private final RoomRepository roomRepository;
+        private final ServiceRepository serviceRepository;
+        private final ClientMapper clientMapper;
 
-    @Override
-    public List<BookingDetailsDto> getAll() {
-        return bookingRepository.findAll().stream().map(bookingDetailsMapper::toDto).toList();
-    }
-
-    @Override
-    @Transactional
-    public BookingDetailsDto create(BookingCreateDto bookingCreateDto) {
-        Room room = roomRepository.findByNumber(bookingCreateDto.getRoomNumber())
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, ("Room not found")));
-        room.setStatus("Забронирован");
-        roomRepository.save(room);
-
-        Client client = null;
-        var foundClient = clientRepository
-                .findByPassportNumber(bookingCreateDto.getClient().getPassportNumber());
-        if (foundClient.isEmpty()) {
-            client = clientMapper.toEntity(bookingCreateDto.getClient());
-            client.setCreatedAt(LocalDateTime.now());
-            client = clientRepository.save(client);
-        } else {
-            client = foundClient.get();
+        @Override
+        public List<BookingDetailsDto> getAll() {
+                return bookingRepository.findAll().stream().map(bookingDetailsMapper::toDto)
+                                .toList();
         }
 
-        // TODO: get employee from client application
-        Employee employee = employeeRepository.findById(1L)
-                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, ("Employee not found")));;
-
-        Booking newBooking = Booking.builder().room(room)
-                .checkInDate(LocalDate.parse(bookingCreateDto.getCheckInDate(),
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-                .checkOutDate(LocalDate.parse(bookingCreateDto.getCheckOutDate(),
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-                .totalPrice(bookingCreateDto.getTotalPrice()).status("Ожидание оплаты").build();
-
-        newBooking.setClients(List.of(client));
-        newBooking.setEmployees(List.of(employee));
-
-        Long totalPrice = bookingCreateDto.getServices().stream()
-                .mapToLong(service -> service.getPrice().longValue()).sum();
-
-        newBooking.setServiceOrders(bookingCreateDto.getServices().stream()
-                .map(service -> ServiceOrder.builder()
-                        .service(serviceRepository.findById(service.getId())
+        @Override
+        @Transactional
+        public BookingDetailsDto create(BookingCreateDto bookingCreateDto) {
+                Room room = roomRepository.findByNumber(bookingCreateDto.getRoomNumber())
                                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
-                                        ("Service not found"))))
-                        .booking(newBooking).orderDate(LocalDate.now()).quantity(1)
-                        .totalPrice(BigDecimal.valueOf(totalPrice)).build())
-                .toList());
+                                                ("Room not found")));
+                room.setStatus("Забронирован");
+                roomRepository.save(room);
 
-        return bookingDetailsMapper.toDto(bookingRepository.save(newBooking));
-    }
+                Client client = null;
+                var foundClient = clientRepository.findByPassportNumber(
+                                bookingCreateDto.getClient().getPassportNumber());
+                if (foundClient.isEmpty()) {
+                        client = clientMapper.toEntity(bookingCreateDto.getClient());
+                        client.setCreatedAt(LocalDateTime.now());
+                        client = clientRepository.save(client);
+                } else {
+                        client = foundClient.get();
+                }
+
+                // TODO: get employee from client application
+                Employee employee = employeeRepository.findById(1L)
+                                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
+                                                ("Employee not found")));;
+
+                Booking newBooking = Booking.builder().room(room)
+                                .checkInDate(LocalDate.parse(bookingCreateDto.getCheckInDate(),
+                                                DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                                .checkOutDate(LocalDate.parse(bookingCreateDto.getCheckOutDate(),
+                                                DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                                .totalPrice(bookingCreateDto.getTotalPrice())
+                                .status("Ожидание оплаты").build();
+
+                newBooking.setClients(List.of(client));
+                newBooking.setEmployees(List.of(employee));
+
+                Long totalPrice = bookingCreateDto.getServices().stream()
+                                .mapToLong(service -> service.getPrice().longValue()).sum();
+
+                newBooking.setServiceOrders(bookingCreateDto.getServices().stream()
+                                .map(service -> ServiceOrder.builder().service(serviceRepository
+                                                .findById(service.getId())
+                                                .orElseThrow(() -> new ApiException(
+                                                                HttpStatus.NOT_FOUND,
+                                                                ("Service not found"))))
+                                                .booking(newBooking).orderDate(LocalDate.now())
+                                                .quantity(1)
+                                                .totalPrice(BigDecimal.valueOf(totalPrice)).build())
+                                .toList());
+
+                return bookingDetailsMapper.toDto(bookingRepository.save(newBooking));
+        }
+
+        @Override
+        @Transactional
+        public BookingDetailsDto cancelByRoomNumber(String roomNumber, String status) {
+                Room room = roomRepository.findByNumber(roomNumber).orElseThrow(
+                                () -> new ApiException(HttpStatus.NOT_FOUND, ("Room not found")));
+                room.setStatus("Свободен");
+                roomRepository.save(room);
+
+                Booking booking = bookingRepository.findActiveBookingByRoomId(room.getId())
+                                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
+                                                ("Booking not found")));
+                booking.setStatus(status);
+
+                return bookingDetailsMapper.toDto(bookingRepository.save(booking));
+        }
+
+        @Override
+        public BookingDetailsDto getActiveByRoomId(String roomNumber) {
+                Room room = roomRepository.findByNumber(roomNumber).orElseThrow(
+                                () -> new ApiException(HttpStatus.NOT_FOUND, ("Room not found")));
+                Booking booking = bookingRepository.findActiveBookingByRoomId(room.getId())
+                                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND,
+                                                ("Booking not found")));
+                return bookingDetailsMapper.toDto(booking);
+        }
 
 }

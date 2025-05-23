@@ -7,4 +7,6 @@ public interface IClientService {
     List<ClientDto> getClients(int page, int size);
 
     ClientDto create(ClientDto clientDto);
+
+    ClientDto update(ClientDto clientDto);
 }
